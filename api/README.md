@@ -67,13 +67,13 @@ pnpm start
 ### Health Check
 
 | Method | Route     | Description   |
-|--------|-----------|---------------|
+| ------ | --------- | ------------- |
 | `GET`  | `/health` | Server status |
 
 ### Todos
 
 | Method   | Route            | Description       |
-|----------|------------------|-------------------|
+| -------- | ---------------- | ----------------- |
 | `GET`    | `/api/todos`     | Get all todos     |
 | `GET`    | `/api/todos/:id` | Get a todo by ID  |
 | `POST`   | `/api/todos`     | Create a new todo |
@@ -83,7 +83,7 @@ pnpm start
 ### Query Parameters
 
 | Parameter   | Type      | Description                   |
-|-------------|-----------|-------------------------------|
+| ----------- | --------- | ----------------------------- |
 | `completed` | `boolean` | Filter by status (true/false) |
 | `search`    | `string`  | Search by title               |
 
