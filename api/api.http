@@ -1,0 +1,53 @@
+@apiUrl = http://localhost:3000
+
+### Health Check
+GET {{apiUrl}}/health
+
+### Get all todos
+GET {{apiUrl}}/api/todos
+
+### Get all completed todos
+GET {{apiUrl}}/api/todos?completed=true
+
+### Get all pending todos
+GET {{apiUrl}}/api/todos?completed=false
+
+### Search todos by title
+GET {{apiUrl}}/api/todos?search=milk
+
+### Get a single todo by ID
+GET {{apiUrl}}/api/todos/1
+
+### Create a new todo
+POST {{apiUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Buy milk",
+  "description": "Go to the supermarket",
+  "priority": "high"
+}
+
+### Create another todo
+POST {{apiUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Study Node.js",
+  "description": "Complete the REST API project",
+  "priority": "medium"
+}
+
+### Update a todo (mark as completed)
+PUT {{apiUrl}}/api/todos/1
+Content-Type: application/json
+
+{
+  "title": "Buy milk",
+  "description": "Go to the supermarket - URGENT",
+  "completed": true,
+  "priority": "high"
+}
+
+### Delete a todo
+DELETE {{apiUrl}}/api/todos/1

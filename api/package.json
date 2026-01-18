@@ -1,0 +1,32 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "TODO API",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "dependencies": {
+    "cors": "2.8.5",
+    "dotenv": "17.2.3",
+    "express": "5.2.1",
+    "helmet": "8.1.0",
+    "mongoose": "^9.1.4",
+    "morgan": "1.10.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.2",
+    "cross-env": "10.1.0",
+    "eslint": "9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.0.0",
+    "prettier": "3.8.0",
+    "prettier-plugin-organize-imports": "4.3.0"
+  }
+}
