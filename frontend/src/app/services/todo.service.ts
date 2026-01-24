@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+
+import { environment } from '../../environments/environment';
 import { CreateTodoDto, Todo, UpdateTodoDto } from '../models/todo.model';
 
 @Injectable({
@@ -8,7 +10,7 @@ import { CreateTodoDto, Todo, UpdateTodoDto } from '../models/todo.model';
 })
 export class TodoService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:3000/api/todos';
+  private readonly baseUrl = `${environment.apiUrl}/api/todos`;
 
   getAll(): Observable<Todo[]> {
     return this.http.get<Todo[]>(this.baseUrl);
