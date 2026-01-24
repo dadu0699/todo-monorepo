@@ -1,0 +1,49 @@
+variable "project_id" {
+  type        = string
+  description = "GCP Project ID"
+}
+
+variable "region" {
+  type        = string
+  description = "GCP region"
+}
+
+variable "zone" {
+  type        = string
+  description = "GCP zone"
+}
+
+variable "instance_count" {
+  type        = number
+  description = "Number of instances in the web MIG"
+  default     = 1
+}
+
+variable "machine_type" {
+  type        = string
+  description = "Machine type for web instances"
+  default     = "e2-micro"
+}
+
+variable "subnet_self_link" {
+  type        = string
+  description = "Subnetwork self link for the web instances"
+}
+
+variable "mongo_private_ip" {
+  type        = string
+  description = "Private IP of the MongoDB instance (optional for future use)"
+  default     = ""
+}
+
+variable "artifacts_bucket" {
+  type        = string
+  description = "GCS bucket name for artifacts (optional for future use)"
+  default     = ""
+}
+
+variable "web_tag" {
+  type        = string
+  description = "Network tag for web instances"
+  default     = "web"
+}
