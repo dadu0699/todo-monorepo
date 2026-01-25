@@ -94,3 +94,9 @@ variable "api_image" {
   description = "Docker image for the Todo API"
   default     = "dadu0699/todo-api:v1"
 }
+
+variable "frontend_image" {
+  type        = string
+  description = "Docker image for the Todo frontend app"
+  default     = "dadu0699/todo-app:v1"
+}

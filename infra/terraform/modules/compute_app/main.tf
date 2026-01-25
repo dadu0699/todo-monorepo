@@ -31,12 +31,14 @@ resource "google_compute_instance_template" "web" {
   # Render the startup script template and strip Windows CRLF if present.
   metadata_startup_script = replace(
     templatefile("${path.module}/startup.sh.tftpl", {
-      ssh_username        = var.ssh_username
-      mongo_private_ip    = var.mongo_private_ip
-      mongo_root_username = var.mongo_root_username
-      mongo_root_password = var.mongo_root_password
-      api_image           = var.api_image
-      api_container_port  = var.api_container_port
+      ssh_username            = var.ssh_username
+      mongo_private_ip        = var.mongo_private_ip
+      mongo_root_username     = var.mongo_root_username
+      mongo_root_password     = var.mongo_root_password
+      api_image               = var.api_image
+      api_container_port      = var.api_container_port
+      frontend_image          = var.frontend_image
+      frontend_container_port = var.frontend_container_port
     }),
     "\r",
     ""

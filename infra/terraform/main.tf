@@ -88,9 +88,10 @@ module "web" {
   mongo_root_username = var.mongo_root_username
   mongo_root_password = var.mongo_root_password
 
-  api_image    = var.api_image
-  ssh_username = var.ssh_username
-  boot_image   = var.boot_image
+  api_image      = var.api_image
+  frontend_image = var.frontend_image
+  ssh_username   = var.ssh_username
+  boot_image     = var.boot_image
 
   depends_on = [module.firewall]
 }

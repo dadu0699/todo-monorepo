@@ -54,8 +54,19 @@ variable "api_image" {
 
 variable "api_container_port" {
   type        = number
-  description = "Port exposed by the API container (mapped to VM port 80)"
+  description = "Port exposed by the API container (mapped to 127.0.0.1:3000)"
   default     = 3000
+}
+
+variable "frontend_image" {
+  type        = string
+  description = "Docker image for the Todo frontend app"
+}
+
+variable "frontend_container_port" {
+  type        = number
+  description = "Port exposed by the frontend container (mapped to 127.0.0.1:5000)"
+  default     = 5000
 }
 
 variable "boot_image" {

@@ -1,8 +1,12 @@
 #!/bin/bash
-# Startup script for web instances (API container).
+# Startup script for web instances:
 # - Installs Docker
 # - Waits for MongoDB connectivity on the private network
-# - Runs the Todo API container on VM port 80
+# - Runs API container (localhost:3000)
+# - Runs Frontend container (localhost:5000)
+# - Runs Nginx reverse proxy (public :80)
+#
+# LB -> :80 (nginx) -> /api -> API, / -> Frontend
 
 exec > >(tee -a /var/log/startup-script.log) 2>&1
 set -euxo pipefail
@@ -43,16 +47,14 @@ done
 # Do not hard-fail the VM if Mongo is still not reachable; the API might still start.
 nc -z "$DB_HOST" "$DB_PORT" || echo "MongoDB still not reachable; continuing anyway..."
 
+# --- Run API (localhost:3000) ---
 docker rm -f todo-api || true
-
-MONGO_URI="mongodb://${mongo_root_username}:${mongo_root_password}@$DB_HOST:$DB_PORT/todo_api?authSource=admin"
-
-# Pull explicitly to surface auth/network issues early in logs
 docker pull ${api_image} || true
 
+MONGO_URI="mongodb://${mongo_root_username}:${mongo_root_password}@$DB_HOST:$DB_PORT/todo_api?authSource=admin"
 docker run -d --name todo-api \
   --restart unless-stopped \
-  -p 80:${api_container_port} \
+  -p 127.0.0.1:${api_container_port}:${api_container_port} \
   -e MONGODB_URI="$MONGO_URI" \
   -e PORT='${api_container_port}' \
   -e NODE_ENV=development \
@@ -60,3 +62,74 @@ docker run -d --name todo-api \
   ${api_image}
 
 echo "todo-api container started."
+
+# --- Run Frontend (localhost:5000 -> container:80) ---
+docker rm -f todo-app || true
+docker pull ${frontend_image} || true
+
+docker run -d --name todo-app \
+  --restart unless-stopped \
+  -p 127.0.0.1:${frontend_container_port}:80 \
+  ${frontend_image}
+
+echo "todo-app container started."
+
+# --- Nginx reverse proxy on :80 (public) ---
+mkdir -p /opt/todo-nginx
+
+cat >/opt/todo-nginx/nginx.conf <<'EOF'
+worker_processes auto;
+
+events {
+  worker_connections 2048;
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  upstream apiServers {
+    server 127.0.0.1:3000 fail_timeout=30s max_fails=3;
+    keepalive 16;
+  }
+
+  upstream frontendServers {
+    server 127.0.0.1:5000 fail_timeout=30s max_fails=3;
+    keepalive 16;
+  }
+
+  server {
+    listen 80;
+    server_name _;
+
+    location /api/ {
+      proxy_pass http://apiServers;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+      proxy_pass http://frontendServers;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+    }
+  }
+}
+EOF
+
+docker rm -f todo-nginx || true
+docker pull nginx:alpine || true
+
+docker run -d --name todo-nginx \
+  --restart unless-stopped \
+  -p 80:80 \
+  -v /opt/todo-nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+  nginx:alpine
+
+echo "Nginx is running on :80. API: /api/, Frontend: /"
