@@ -24,7 +24,7 @@ module "firewall" {
   web_tag = "web"
   db_tag  = "db"
 
-  allow_http_world = true
+  allow_http_world = false
 }
 
 module "nat" {
@@ -47,6 +47,7 @@ module "db" {
   mongo_root_password = var.mongo_root_password
 
   ssh_username = var.ssh_username
+  boot_image   = var.boot_image
 
   depends_on = [module.nat, module.firewall]
 }
@@ -63,6 +64,15 @@ module "web" {
 
   api_image    = var.api_image
   ssh_username = var.ssh_username
+  boot_image   = var.boot_image
 
   depends_on = [module.firewall]
+}
+
+module "lb_http" {
+  source = "./modules/lb_http"
+
+  name           = "todo-api"
+  instance_group = module.web.instance_group
+  health_check   = module.web.health_check
 }

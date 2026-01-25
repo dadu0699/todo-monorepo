@@ -10,6 +10,11 @@ variable "machine_type" {
   default     = "e2-micro"
 }
 
+variable "boot_image" {
+  type        = string
+  description = "Boot image for the DB VM"
+}
+
 variable "zone" {
   type        = string
   description = "GCP zone"

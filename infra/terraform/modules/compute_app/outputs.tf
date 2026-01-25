@@ -1,11 +1,7 @@
-output "web_public_ip" {
-  value = google_compute_instance.web.network_interface[0].access_config[0].nat_ip
+output "instance_group" {
+  value = google_compute_instance_group_manager.web.instance_group
 }
 
-output "web_private_ip" {
-  value = google_compute_instance.web.network_interface[0].network_ip
-}
-
-output "instance_name" {
-  value = google_compute_instance.web.name
+output "health_check" {
+  value = google_compute_health_check.http.self_link
 }

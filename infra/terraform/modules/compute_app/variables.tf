@@ -45,3 +45,8 @@ variable "api_container_port" {
   type    = number
   default = 3000
 }
+
+variable "boot_image" {
+  type        = string
+  description = "Boot image for the DB VM"
+}

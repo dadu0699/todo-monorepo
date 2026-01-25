@@ -28,7 +28,6 @@ resource "google_compute_firewall" "allow_mongo_from_web" {
   target_tags = [var.db_tag]
 }
 
-# Regla para cuando tengas LB (solo LB -> instancias web)
 resource "google_compute_firewall" "allow_lb_http" {
   name      = "allow-lb-http"
   network   = var.network_self_link
@@ -44,7 +43,6 @@ resource "google_compute_firewall" "allow_lb_http" {
   target_tags   = [var.web_tag]
 }
 
-# Regla temporal mientras NO hay LB (internet -> instancias web)
 resource "google_compute_firewall" "allow_http_to_web" {
   count     = var.allow_http_world ? 1 : 0
   name      = "allow-http-to-web"

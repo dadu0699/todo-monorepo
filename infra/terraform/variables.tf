@@ -64,3 +64,9 @@ variable "api_image" {
   type    = string
   default = "dadu0699/todo-api:v1"
 }
+
+variable "boot_image" {
+  type        = string
+  description = "Boot image for the DB VM"
+  default     = "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20260114"
+}

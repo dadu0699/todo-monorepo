@@ -1,8 +1,3 @@
-data "google_compute_image" "ubuntu" {
-  family  = "ubuntu-2204-lts"
-  project = "ubuntu-os-cloud"
-}
-
 resource "google_compute_instance" "db" {
   name         = var.instance_name
   machine_type = var.machine_type
@@ -12,7 +7,7 @@ resource "google_compute_instance" "db" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.ubuntu.self_link
+      image = var.boot_image
       size  = 20
       type  = "pd-balanced"
     }
