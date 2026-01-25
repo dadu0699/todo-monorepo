@@ -43,5 +43,5 @@ variable "api_image" {
 
 variable "api_container_port" {
   type    = number
-  default = 80
+  default = 3000
 }

@@ -10,12 +10,32 @@ systemctl start docker
 
 usermod -aG docker '${ssh_username}' || true
 
-nc -vz ${mongo_private_ip} 27017 || true
+DB_HOST='${mongo_private_ip}'
+DB_PORT='27017'
+
+echo "Waiting for MongoDB at $DB_HOST:$DB_PORT ..."
+for i in $(seq 1 60); do
+  if nc -z "$DB_HOST" "$DB_PORT"; then
+    echo "MongoDB is reachable!"
+    break
+  fi
+  echo "MongoDB not ready yet ($i/60). Sleeping 5s..."
+  sleep 5
+done
+
+nc -z "$DB_HOST" "$DB_PORT" || echo "MongoDB still not reachable, continuing anyway..."
 
 docker rm -f todo-api || true
+
+MONGO_URI="mongodb://${mongo_root_username}:${mongo_root_password}@$DB_HOST:$DB_PORT/todo_api?authSource=admin"
 
 docker run -d --name todo-api \
   --restart unless-stopped \
   -p 80:${api_container_port} \
-  -e MONGO_URL="mongodb://${mongo_root_username}:${mongo_root_password}@${mongo_private_ip}:27017/admin" \
+  -e MONGODB_URI="$MONGO_URI" \
+  -e PORT='${api_container_port}' \
+  -e NODE_ENV=development \
+  -e LOG_LEVEL=debug \
   ${api_image}
+
+echo "todo-api running. MONGODB_URI=$MONGO_URI"

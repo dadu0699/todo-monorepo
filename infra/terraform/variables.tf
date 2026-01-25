@@ -62,5 +62,5 @@ variable "mongo_root_password" {
 
 variable "api_image" {
   type    = string
-  default = "ghcr.io/traefik/whoami:latest"
+  default = "dadu0699/todo-api:v1"
 }
