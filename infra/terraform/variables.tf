@@ -45,19 +45,22 @@ variable "private_subnet_cidr" {
   default     = "10.20.0.0/24"
 }
 
-variable "web_instance_count" {
-  type        = number
-  description = "Number of instances in the web MIG"
-  default     = 1
-}
-
-variable "web_tag" {
-  type        = string
-  description = "Network tag for web instances"
-  default     = "web"
-}
-
-variable "repo_ref" {
+variable "ssh_username" {
   type    = string
-  default = "main"
+  default = "didier_dominguez_gt"
+}
+
+variable "mongo_root_username" {
+  type    = string
+  default = "root"
+}
+
+variable "mongo_root_password" {
+  type    = string
+  default = "root"
+}
+
+variable "api_image" {
+  type    = string
+  default = "ghcr.io/traefik/whoami:latest"
 }

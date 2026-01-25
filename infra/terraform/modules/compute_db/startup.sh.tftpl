@@ -8,6 +8,8 @@ apt-get install -y docker.io
 systemctl enable docker
 systemctl start docker
 
+usermod -aG docker '${ssh_username}' || true
+
 docker rm -f mongodb || true
 docker volume create mongodb_data || true
 
@@ -18,5 +20,3 @@ docker run -d --name mongodb \
   -e MONGO_INITDB_ROOT_USERNAME='${mongo_root_username}' \
   -e MONGO_INITDB_ROOT_PASSWORD='${mongo_root_password}' \
   mongo:latest
-
-usermod -aG docker '${ssh_username}' || true

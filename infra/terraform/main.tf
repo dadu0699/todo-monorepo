@@ -4,9 +4,7 @@ provider "google" {
 }
 
 module "network" {
-  source = "./modules/network"
-
-  project_id          = var.project_id
+  source              = "./modules/network"
   region              = var.region
   vpc_name            = var.vpc_name
   public_subnet_name  = var.public_subnet_name
@@ -16,9 +14,7 @@ module "network" {
 }
 
 module "nat" {
-  source = "./modules/nat"
-
-  project_id               = var.project_id
+  source                   = "./modules/nat"
   region                   = var.region
   network_self_link        = module.network.vpc_self_link
   private_subnet_self_link = module.network.private_subnet_self_link
@@ -26,29 +22,30 @@ module "nat" {
 }
 
 module "db" {
-  source = "./modules/db_vm"
+  source = "./modules/compute_db"
+  zone   = var.zone
 
-  project_id           = var.project_id
-  zone                 = var.zone
   subnetwork_self_link = module.network.private_subnet_self_link
+
+  mongo_root_username = var.mongo_root_username
+  mongo_root_password = var.mongo_root_password
+
+  ssh_username = var.ssh_username
 
   depends_on = [module.nat]
 }
 
 module "web" {
-  source = "./modules/web_mig_lb"
+  source = "./modules/compute_app"
+  zone   = var.zone
 
-  project_id       = var.project_id
-  region           = var.region
-  zone             = var.zone
-  instance_count   = var.web_instance_count
-  subnet_self_link = module.network.private_subnet_self_link
+  subnetwork_self_link = module.network.public_subnet_self_link
 
-  mongo_private_ip = module.db.private_ip
-  web_tag          = var.web_tag
-  db_private_ip    = module.db.private_ip
-  repo_ref         = var.repo_ref
-  api_port         = 3000
+  mongo_private_ip    = module.db.private_ip
+  mongo_root_username = var.mongo_root_username
+  mongo_root_password = var.mongo_root_password
 
-  depends_on = [module.nat]
+  api_image = var.api_image
+
+  ssh_username = var.ssh_username
 }

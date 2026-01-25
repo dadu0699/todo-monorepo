@@ -1,7 +1,3 @@
-output "lb_ip" {
-  value = module.web.lb_ip
-}
-
 output "db_private_ip" {
   value = module.db.private_ip
 }

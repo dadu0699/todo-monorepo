@@ -29,17 +29,14 @@ variable "subnetwork_self_link" {
 variable "mongo_root_username" {
   type        = string
   description = "Mongo root username"
-  default     = "root"
 }
 
 variable "mongo_root_password" {
   type        = string
   description = "Mongo root password"
-  default     = "root"
 }
 
 variable "ssh_username" {
   type        = string
   description = "Linux user who will be granted permissions to use docker without sudo"
-  default     = "didier_dominguez_gt"
 }
