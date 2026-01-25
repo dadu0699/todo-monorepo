@@ -136,7 +136,7 @@ curl http://localhost:3000/api/todos
 ```bash
 curl -X PUT http://localhost:3000/api/todos/TODO_ID \
   -H "Content-Type: application/json" \
-  -d '{"completed": true}'
+  -d '{"title": "Buy milk","description": "Go to the supermarket - URGENT","completed": true,"priority": "high"}'
 ```
 
 ### Delete a todo
