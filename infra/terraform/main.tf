@@ -1,22 +1,38 @@
 provider "google" {
   project = var.project_id
   region  = var.region
+  zone    = var.zone
 }
 
 module "network" {
-  source              = "./modules/network"
-  region              = var.region
-  vpc_name            = var.vpc_name
-  public_subnet_name  = var.public_subnet_name
-  public_subnet_cidr  = var.public_subnet_cidr
+  source = "./modules/network"
+  region = var.region
+
+  vpc_name = var.vpc_name
+
+  public_subnet_name = var.public_subnet_name
+  public_subnet_cidr = var.public_subnet_cidr
+
   private_subnet_name = var.private_subnet_name
   private_subnet_cidr = var.private_subnet_cidr
 }
 
+module "firewall" {
+  source            = "./modules/firewall"
+  network_self_link = module.network.vpc_self_link
+
+  web_tag = "web"
+  db_tag  = "db"
+
+  allow_http_world = true
+}
+
 module "nat" {
-  source                   = "./modules/nat"
-  region                   = var.region
-  network_self_link        = module.network.vpc_self_link
+  source = "./modules/nat"
+  region = var.region
+
+  network_self_link = module.network.vpc_self_link
+
   private_subnet_self_link = module.network.private_subnet_self_link
   public_subnet_self_link  = module.network.public_subnet_self_link
 }
@@ -32,7 +48,7 @@ module "db" {
 
   ssh_username = var.ssh_username
 
-  depends_on = [module.nat]
+  depends_on = [module.nat, module.firewall]
 }
 
 module "web" {
@@ -45,7 +61,8 @@ module "web" {
   mongo_root_username = var.mongo_root_username
   mongo_root_password = var.mongo_root_password
 
-  api_image = var.api_image
-
+  api_image    = var.api_image
   ssh_username = var.ssh_username
+
+  depends_on = [module.firewall]
 }
