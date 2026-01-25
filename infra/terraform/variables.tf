@@ -1,72 +1,96 @@
+############################
+# Global / Project settings
+############################
+
 variable "project_id" {
   type        = string
-  description = "GCP Project ID"
+  description = "GCP Project ID where all resources will be created"
 }
 
 variable "region" {
   type        = string
-  description = "GCP region"
+  description = "Default GCP region"
   default     = "us-central1"
 }
 
 variable "zone" {
   type        = string
-  description = "GCP zone"
+  description = "Default GCP zone"
   default     = "us-central1-a"
 }
 
+############################
+# Networking
+############################
+
 variable "vpc_name" {
   type        = string
-  description = "VPC name"
+  description = "Name of the VPC network"
   default     = "todo-vpc"
 }
 
 variable "public_subnet_name" {
   type        = string
-  description = "Public subnet name"
+  description = "Name of the public subnet (used by web tier)"
   default     = "public-subnet"
 }
 
 variable "private_subnet_name" {
   type        = string
-  description = "Private subnet name"
+  description = "Name of the private subnet (used by database tier)"
   default     = "private-subnet"
 }
 
 variable "public_subnet_cidr" {
   type        = string
-  description = "CIDR for public subnet"
+  description = "CIDR block for the public subnet"
   default     = "10.10.0.0/24"
 }
 
 variable "private_subnet_cidr" {
   type        = string
-  description = "CIDR for private subnet"
+  description = "CIDR block for the private subnet"
   default     = "10.20.0.0/24"
 }
 
-variable "ssh_username" {
-  type    = string
-  default = "didier_dominguez_gt"
-}
-
-variable "mongo_root_username" {
-  type    = string
-  default = "root"
-}
-
-variable "mongo_root_password" {
-  type    = string
-  default = "root"
-}
-
-variable "api_image" {
-  type    = string
-  default = "dadu0699/todo-api:v1"
-}
+############################
+# Compute / OS
+############################
 
 variable "boot_image" {
   type        = string
-  description = "Boot image for the DB VM"
+  description = "Fixed Ubuntu image used for VMs and instance templates (prevents unintended replacements)"
   default     = "projects/ubuntu-os-cloud/global/images/ubuntu-2204-jammy-v20260114"
+}
+
+variable "ssh_username" {
+  type        = string
+  description = "Linux username added to instances for SSH access"
+  default     = "didier_dominguez_gt"
+}
+
+############################
+# Database (MongoDB)
+############################
+
+variable "mongo_root_username" {
+  type        = string
+  description = "MongoDB root username"
+  default     = "root"
+}
+
+variable "mongo_root_password" {
+  type        = string
+  description = "MongoDB root password"
+  default     = "root"
+}
+
+############################
+# Application
+############################
+
+variable "api_image" {
+  type        = string
+  description = "Docker image for the Todo API"
+  default     = "dadu0699/todo-api:v1"
 }

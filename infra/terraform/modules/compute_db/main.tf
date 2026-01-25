@@ -1,3 +1,10 @@
+######################################
+# Compute Engine VM - MongoDB (Docker)
+#
+# This VM runs MongoDB inside a Docker container.
+# It is deployed in the private subnet (no external IP).
+######################################
+
 resource "google_compute_instance" "db" {
   name         = var.instance_name
   machine_type = var.machine_type
@@ -13,10 +20,12 @@ resource "google_compute_instance" "db" {
     }
   }
 
+  # No access_config => no external IP (private-only)
   network_interface {
     subnetwork = var.subnetwork_self_link
   }
 
+  # Render the startup script template and strip Windows CRLF if present.
   metadata_startup_script = replace(
     templatefile("${path.module}/startup.sh.tftpl", {
       mongo_root_username = var.mongo_root_username

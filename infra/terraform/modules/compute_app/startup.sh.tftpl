@@ -1,6 +1,13 @@
 #!/bin/bash
+# Startup script for web instances (API container).
+# - Installs Docker
+# - Waits for MongoDB connectivity on the private network
+# - Runs the Todo API container on VM port 80
+
 exec > >(tee -a /var/log/startup-script.log) 2>&1
 set -euxo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 apt-get install -y docker.io netcat
@@ -8,7 +15,17 @@ apt-get install -y docker.io netcat
 systemctl enable docker
 systemctl start docker
 
+# Allow the SSH user to run docker without sudo (requires new login session to take effect)
 usermod -aG docker '${ssh_username}' || true
+
+# Wait for Docker socket (sometimes the service is "started" but socket isn't ready yet)
+for i in $(seq 1 30); do
+  if docker info >/dev/null 2>&1; then
+    break
+  fi
+  echo "Waiting for Docker daemon... ($i/30)"
+  sleep 2
+done
 
 DB_HOST='${mongo_private_ip}'
 DB_PORT='27017'
@@ -23,11 +40,15 @@ for i in $(seq 1 60); do
   sleep 5
 done
 
-nc -z "$DB_HOST" "$DB_PORT" || echo "MongoDB still not reachable, continuing anyway..."
+# Do not hard-fail the VM if Mongo is still not reachable; the API might still start.
+nc -z "$DB_HOST" "$DB_PORT" || echo "MongoDB still not reachable; continuing anyway..."
 
 docker rm -f todo-api || true
 
 MONGO_URI="mongodb://${mongo_root_username}:${mongo_root_password}@$DB_HOST:$DB_PORT/todo_api?authSource=admin"
+
+# Pull explicitly to surface auth/network issues early in logs
+docker pull ${api_image} || true
 
 docker run -d --name todo-api \
   --restart unless-stopped \
@@ -38,4 +59,4 @@ docker run -d --name todo-api \
   -e LOG_LEVEL=debug \
   ${api_image}
 
-echo "todo-api running. MONGODB_URI=$MONGO_URI"
+echo "todo-api container started."

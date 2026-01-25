@@ -1,3 +1,14 @@
+######################################
+# Compute Engine - Web/API tier (MIG)
+#
+# This module creates:
+# - Instance Template (no external IPs)
+# - Health Check (HTTP /health)
+# - Managed Instance Group (2 instances)
+#
+# Instances run the API container and connect to MongoDB over the private VPC.
+######################################
+
 resource "google_compute_instance_template" "web" {
   name_prefix  = "${var.instance_name}-tpl-"
   machine_type = var.machine_type
@@ -12,10 +23,12 @@ resource "google_compute_instance_template" "web" {
     disk_type    = "pd-balanced"
   }
 
+  # No access_config => no external IP
   network_interface {
     subnetwork = var.subnetwork_self_link
   }
 
+  # Render the startup script template and strip Windows CRLF if present.
   metadata_startup_script = replace(
     templatefile("${path.module}/startup.sh.tftpl", {
       ssh_username        = var.ssh_username
@@ -51,12 +64,15 @@ resource "google_compute_instance_group_manager" "web" {
   name               = "${var.instance_name}-mig"
   zone               = var.zone
   base_instance_name = var.instance_name
-  target_size        = 2
+
+  # Keep it small for free-tier style labs; can be made variable later.
+  target_size = 2
 
   version {
     instance_template = google_compute_instance_template.web.self_link
   }
 
+  # Required by Backend Service (LB) when port_name="http"
   named_port {
     name = "http"
     port = 80

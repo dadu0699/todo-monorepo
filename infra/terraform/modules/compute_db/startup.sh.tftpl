@@ -1,6 +1,13 @@
 #!/bin/bash
+# Startup script for the MongoDB VM.
+# - Installs Docker
+# - Runs MongoDB container on port 27017
+# - Adds the provided user to the docker group
+
 exec > >(tee -a /var/log/startup-script.log) 2>&1
 set -euxo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 apt-get install -y docker.io
@@ -8,8 +15,10 @@ apt-get install -y docker.io
 systemctl enable docker
 systemctl start docker
 
+# Allow the SSH user to run docker without sudo (requires new login session to take effect)
 usermod -aG docker '${ssh_username}' || true
 
+# Idempotent container setup
 docker rm -f mongodb || true
 docker volume create mongodb_data || true
 
@@ -20,3 +29,5 @@ docker run -d --name mongodb \
   -e MONGO_INITDB_ROOT_USERNAME='${mongo_root_username}' \
   -e MONGO_INITDB_ROOT_PASSWORD='${mongo_root_password}' \
   mongo:latest
+
+echo "MongoDB container started."
