@@ -36,14 +36,24 @@ variable "mongo_private_ip" {
   default     = ""
 }
 
-variable "artifacts_bucket" {
-  type        = string
-  description = "GCS bucket name for artifacts (optional for future use)"
-  default     = ""
-}
-
 variable "web_tag" {
   type        = string
   description = "Network tag for web instances"
   default     = "web"
+}
+
+variable "repo_ref" {
+  type        = string
+  description = "Branch/tag/commit"
+  default     = "main"
+}
+
+variable "db_private_ip" {
+  type        = string
+  description = "IP privada de la VM de DB"
+}
+
+variable "api_port" {
+  type    = number
+  default = 3000
 }

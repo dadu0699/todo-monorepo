@@ -1,17 +1,12 @@
-variable "project_id" {
+variable "vpc_name" {
   type        = string
-  description = "GCP Project ID"
+  description = "VPC name"
+  default     = "todo-vpc"
 }
 
 variable "region" {
   type        = string
   description = "GCP region"
-}
-
-variable "vpc_name" {
-  type        = string
-  description = "VPC name"
-  default     = "todo-vpc"
 }
 
 variable "public_subnet_name" {

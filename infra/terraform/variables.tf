@@ -56,3 +56,8 @@ variable "web_tag" {
   description = "Network tag for web instances"
   default     = "web"
 }
+
+variable "repo_ref" {
+  type    = string
+  default = "main"
+}

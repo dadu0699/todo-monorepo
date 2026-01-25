@@ -25,18 +25,6 @@ module "nat" {
   public_subnet_self_link  = module.network.public_subnet_self_link
 }
 
-resource "google_storage_bucket" "artifacts" {
-  name          = "${var.project_id}-artifacts"
-  location      = var.region
-  force_destroy = true
-
-  uniform_bucket_level_access = true
-
-  versioning {
-    enabled = false
-  }
-}
-
 module "db" {
   source = "./modules/db_vm"
 
@@ -57,8 +45,10 @@ module "web" {
   subnet_self_link = module.network.private_subnet_self_link
 
   mongo_private_ip = module.db.private_ip
-  artifacts_bucket = google_storage_bucket.artifacts.name
   web_tag          = var.web_tag
+  db_private_ip    = module.db.private_ip
+  repo_ref         = var.repo_ref
+  api_port         = 3000
 
   depends_on = [module.nat]
 }

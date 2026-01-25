@@ -18,11 +18,9 @@ resource "google_compute_subnetwork" "private" {
   private_ip_google_access = true
 }
 
-# Allow HTTP from Google Cloud Load Balancer proxies + health checkers only
 resource "google_compute_firewall" "allow_lb_http" {
-  name    = "allow-lb-http"
-  network = google_compute_network.vpc.name
-
+  name      = "allow-lb-http"
+  network   = google_compute_network.vpc.name
   direction = "INGRESS"
   priority  = 1000
 
@@ -35,11 +33,9 @@ resource "google_compute_firewall" "allow_lb_http" {
   target_tags   = ["web"]
 }
 
-# SSH only via IAP TCP forwarding (recommended)
 resource "google_compute_firewall" "allow_ssh_iap" {
-  name    = "allow-ssh-iap"
-  network = google_compute_network.vpc.name
-
+  name      = "allow-ssh-iap"
+  network   = google_compute_network.vpc.name
   direction = "INGRESS"
   priority  = 1000
 
@@ -52,11 +48,9 @@ resource "google_compute_firewall" "allow_ssh_iap" {
   target_tags   = ["web", "db"]
 }
 
-# MongoDB from web -> db
 resource "google_compute_firewall" "allow_mongo_from_web" {
-  name    = "allow-mongo-from-web"
-  network = google_compute_network.vpc.name
-
+  name      = "allow-mongo-from-web"
+  network   = google_compute_network.vpc.name
   direction = "INGRESS"
   priority  = 1000
 

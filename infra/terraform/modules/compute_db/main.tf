@@ -4,7 +4,7 @@ data "google_compute_image" "ubuntu" {
 }
 
 resource "google_compute_instance" "db" {
-  name         = "todo-db"
+  name         = var.instance_name
   machine_type = var.machine_type
   zone         = var.zone
 
@@ -20,20 +20,15 @@ resource "google_compute_instance" "db" {
 
   network_interface {
     subnetwork = var.subnetwork_self_link
-    # No external IP -> egress via Cloud NAT
   }
 
-  metadata_startup_script = <<-EOF
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    export DEBIAN_FRONTEND=noninteractive
-
-    apt-get update -y
-    apt-get install -y mongodb
-
-    systemctl enable mongodb
-    systemctl start mongodb
-  EOF
+  metadata_startup_script = replace(
+    templatefile("${path.module}/startup.sh.tftpl", {
+      mongo_root_username = var.mongo_root_username
+      mongo_root_password = var.mongo_root_password
+      ssh_username        = var.ssh_username
+    }),
+    "\r",
+    ""
+  )
 }
-
