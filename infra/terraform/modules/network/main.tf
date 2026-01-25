@@ -62,3 +62,19 @@ resource "google_compute_firewall" "allow_mongo_from_web" {
   source_tags = ["web"]
   target_tags = ["db"]
 }
+
+resource "google_compute_firewall" "allow_http_to_web" {
+  name    = "allow-http-to-web"
+  network = google_compute_network.vpc.self_link
+
+  direction = "INGRESS"
+  priority  = 1000
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["web"]
+}

@@ -1,0 +1,21 @@
+#!/bin/bash
+exec > >(tee -a /var/log/startup-script.log) 2>&1
+set -euxo pipefail
+
+apt-get update
+apt-get install -y docker.io netcat
+
+systemctl enable docker
+systemctl start docker
+
+usermod -aG docker '${ssh_username}' || true
+
+nc -vz ${mongo_private_ip} 27017 || true
+
+docker rm -f todo-api || true
+
+docker run -d --name todo-api \
+  --restart unless-stopped \
+  -p 80:${api_container_port} \
+  -e MONGO_URL="mongodb://${mongo_root_username}:${mongo_root_password}@${mongo_private_ip}:27017/admin" \
+  ${api_image}
