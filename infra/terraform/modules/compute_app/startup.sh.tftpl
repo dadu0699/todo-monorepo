@@ -47,6 +47,9 @@ done
 # Do not hard-fail the VM if Mongo is still not reachable; the API might still start.
 nc -z "$DB_HOST" "$DB_PORT" || echo "MongoDB still not reachable; continuing anyway..."
 
+# Create shared Docker network so containers can talk by name
+docker network create todo-net || true
+
 # --- Run API (localhost:3000) ---
 docker rm -f todo-api || true
 docker pull ${api_image} || true
@@ -54,7 +57,7 @@ docker pull ${api_image} || true
 MONGO_URI="mongodb://${mongo_root_username}:${mongo_root_password}@$DB_HOST:$DB_PORT/todo_api?authSource=admin"
 docker run -d --name todo-api \
   --restart unless-stopped \
-  -p 127.0.0.1:${api_container_port}:${api_container_port} \
+  --network todo-net \
   -e MONGODB_URI="$MONGO_URI" \
   -e PORT='${api_container_port}' \
   -e NODE_ENV=development \
@@ -69,7 +72,7 @@ docker pull ${frontend_image} || true
 
 docker run -d --name todo-app \
   --restart unless-stopped \
-  -p 127.0.0.1:${frontend_container_port}:80 \
+  --network todo-net \
   ${frontend_image}
 
 echo "todo-app container started."
@@ -89,12 +92,12 @@ http {
   default_type application/octet-stream;
 
   upstream apiServers {
-    server 127.0.0.1:3000 fail_timeout=30s max_fails=3;
+    server todo-api:${api_container_port} fail_timeout=30s max_fails=3;
     keepalive 16;
   }
 
   upstream frontendServers {
-    server 127.0.0.1:5000 fail_timeout=30s max_fails=3;
+    server todo-app:${frontend_container_port} fail_timeout=30s max_fails=3;
     keepalive 16;
   }
 
@@ -133,6 +136,7 @@ docker pull nginx:alpine || true
 
 docker run -d --name todo-nginx \
   --restart unless-stopped \
+  --network todo-net \
   -p 80:80 \
   -v /opt/todo-nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
   nginx:alpine

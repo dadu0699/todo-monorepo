@@ -65,8 +65,8 @@ variable "frontend_image" {
 
 variable "frontend_container_port" {
   type        = number
-  description = "Port exposed by the frontend container (mapped to 127.0.0.1:5000)"
-  default     = 5000
+  description = "Port exposed by the frontend container (mapped to 127.0.0.1:80)"
+  default     = 80
 }
 
 variable "boot_image" {
