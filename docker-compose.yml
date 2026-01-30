@@ -1,14 +1,30 @@
 name: todo-monorepo
 
 services:
+  db:
+    image: mongo:latest
+    container_name: todo-mongo
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - todo-net
+
   api:
     build:
       context: ./api
     container_name: todo-api
+    depends_on:
+      db:
+        condition: service_started
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - MONGODB_URI=mongodb://root:root@192.168.0.3:27017/todo_api?authSource=admin
+      - MONGODB_URI=mongodb://root:root@todo-mongo:27017/todo_api?authSource=admin
       - LOG_LEVEL=debug
     restart: unless-stopped
     networks:
@@ -17,6 +33,9 @@ services:
   frontend:
     build:
       context: ./frontend
+    depends_on:
+      api:
+        condition: service_started
     container_name: todo-app
     restart: unless-stopped
     networks:
@@ -35,6 +54,10 @@ services:
     restart: unless-stopped
     networks:
       - todo-net
+
+volumes:
+  mongodb_data:
+    driver: local
 
 networks:
   todo-net:
